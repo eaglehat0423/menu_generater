@@ -97,6 +97,62 @@
   cursor: pointer;
 }
 
+.color-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
+}
+
+.color-picker-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.color-history-wrapper {
+  width: 100%;
+}
+
+.color-history__label {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6c5a48;
+}
+
+.color-history__empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #b3a08c;
+}
+
+.color-history {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.color-history__chip {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.color-history__chip.is-active {
+  box-shadow: 0 0 0 2px #2c2c2c, 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.color-history__chip:focus-visible {
+  box-shadow: 0 0 0 2px #927153, 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
 .item-form {
   border: 1px solid #eadcca;
   border-radius: 16px;

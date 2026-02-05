@@ -6,13 +6,14 @@ import {
   useRef,
   useState,
 } from 'react'
-import type { ChangeEvent, CSSProperties } from 'react'
+import type { ChangeEvent, CSSProperties, FocusEvent, FormEvent } from 'react'
 import { domToPng } from 'modern-screenshot'
 import './App.css'
 
 const TAX_RATE = 0.1
 const PAGE_WIDTH = 794
 const PAGE_HEIGHT = 1123
+const COLOR_HISTORY_LIMIT = 8
 
 type MenuItem = {
   id: string
@@ -137,6 +138,7 @@ function App() {
   const [items, setItems] = useState<MenuItem[]>(initialItems)
   const [visibleCount, setVisibleCount] = useState<1 | 2>(2)
   const [shadowColor, setShadowColor] = useState('#57e8ff')
+  const [shadowColorHistory, setShadowColorHistory] = useState<string[]>([])
   const [pageScale, setPageScale] = useState(1)
   const previewRef = useRef<HTMLDivElement>(null)
   const previewStageRef = useRef<HTMLDivElement>(null)
@@ -170,6 +172,32 @@ function App() {
         prev.map((item) => (item.id === id ? { ...item, price: digitsOnly } : item)),
       )
     }
+
+  const recordShadowColor = useCallback((color: string) => {
+    const normalized = color?.toLowerCase()
+    if (!normalized) return
+
+    setShadowColorHistory((prev) => {
+      if (prev[0] === normalized) return prev
+      const filtered = prev.filter((entry) => entry !== normalized)
+      const next = [normalized, ...filtered]
+      return next.slice(0, COLOR_HISTORY_LIMIT)
+    })
+  }, [])
+
+  const handleShadowColorInput = (event: FormEvent<HTMLInputElement>) => {
+    setShadowColor(event.currentTarget.value)
+  }
+
+  const handleShadowColorBlur = (event: FocusEvent<HTMLInputElement>) => {
+    const nextColor = event.currentTarget.value
+    recordShadowColor(nextColor)
+  }
+
+  const handleHistorySelect = (color: string) => {
+    setShadowColor(color)
+    recordShadowColor(color)
+  }
 
   const updateScale = useCallback(() => {
     const stage = previewStageRef.current
@@ -295,15 +323,43 @@ function App() {
             </div>
           </div>
 
-          <label className="control-row color-row">
-            <span className="control-label">影の色</span>
-            <input
-              type="color"
-              value={shadowColor}
-              onChange={(event) => setShadowColor(event.target.value)}
-              aria-label="影の色を選択"
-            />
-          </label>
+          <div className="control-row color-row">
+            <label className="control-label" htmlFor="shadow-color-picker">
+              影の色
+            </label>
+            <div className="color-picker-group">
+              <input
+                id="shadow-color-picker"
+                type="color"
+                value={shadowColor}
+                onInput={handleShadowColorInput}
+                onBlur={handleShadowColorBlur}
+                aria-label="影の色を選択"
+              />
+              <div className="color-history-wrapper" aria-live="polite">
+                <p className="color-history__label">最近使った色</p>
+                {shadowColorHistory.length > 0 ? (
+                  <div className="color-history" aria-label="影色の履歴" role="list">
+                    {shadowColorHistory.map((color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        className={`color-history__chip${
+                          color === shadowColor ? ' is-active' : ''
+                        }`}
+                        style={{ backgroundColor: color }}
+                        onClick={() => handleHistorySelect(color)}
+                        title={color}
+                        aria-label={`以前の色 ${color}`}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="color-history__empty">まだ履歴がありません</p>
+                )}
+              </div>
+            </div>
+          </div>
 
           {items.map((item, index) => (
             <fieldset key={item.id} className="item-form">
