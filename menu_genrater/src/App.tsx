@@ -13,6 +13,9 @@ import './App.css'
 const TAX_RATE = 0.1
 const PAGE_WIDTH = 794
 const PAGE_HEIGHT = 1123
+const DEFAULT_SHADOW_COLOR = '#57e8ff'
+const COLOR_HISTORY_KEY = 'menu_generator_shadow_history'
+const MAX_COLOR_HISTORY = 8
 
 type MenuItem = {
   id: string
@@ -133,13 +136,32 @@ const MenuPreview = ({ item, shadowColor }: MenuPreviewProps) => {
   )
 }
 
+const loadColorHistory = (): string[] => {
+  if (typeof window === 'undefined') return [DEFAULT_SHADOW_COLOR]
+  try {
+    const stored = window.localStorage.getItem(COLOR_HISTORY_KEY)
+    if (!stored) return [DEFAULT_SHADOW_COLOR]
+    const parsed = JSON.parse(stored) as string[]
+    if (Array.isArray(parsed) && parsed.length) {
+      return parsed.filter((color) => typeof color === 'string')
+    }
+    return [DEFAULT_SHADOW_COLOR]
+  } catch (error) {
+    console.warn('Failed to load color history', error)
+    return [DEFAULT_SHADOW_COLOR]
+  }
+}
+
 function App() {
+  const initialColorHistory = useMemo(() => loadColorHistory(), [])
+  const [colorHistory, setColorHistory] = useState<string[]>(initialColorHistory)
+  const [shadowColor, setShadowColor] = useState(initialColorHistory[0] ?? DEFAULT_SHADOW_COLOR)
   const [items, setItems] = useState<MenuItem[]>(initialItems)
   const [visibleCount, setVisibleCount] = useState<1 | 2>(2)
-  const [shadowColor, setShadowColor] = useState('#57e8ff')
   const [pageScale, setPageScale] = useState(1)
   const previewRef = useRef<HTMLDivElement>(null)
   const previewStageRef = useRef<HTMLDivElement>(null)
+  const historyTimeoutRef = useRef<number | null>(null)
 
   const computedItems = useMemo<ComputedMenuItem[]>(
     () =>
@@ -153,6 +175,66 @@ function App() {
       }),
     [items],
   )
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(COLOR_HISTORY_KEY, JSON.stringify(colorHistory))
+  }, [colorHistory])
+
+  const commitColorToHistory = useCallback(
+    (nextColor: string) => {
+      setColorHistory((prev) => {
+        const filtered = prev.filter((color) => color !== nextColor)
+        return [nextColor, ...filtered].slice(0, MAX_COLOR_HISTORY)
+      })
+    },
+    [setColorHistory],
+  )
+
+  const scheduleHistoryUpdate = useCallback(
+    (nextColor: string) => {
+      if (historyTimeoutRef.current) {
+        window.clearTimeout(historyTimeoutRef.current)
+      }
+      historyTimeoutRef.current = window.setTimeout(() => {
+        commitColorToHistory(nextColor)
+        historyTimeoutRef.current = null
+      }, 500)
+    },
+    [commitColorToHistory],
+  )
+
+  const handleShadowColorChange = (
+    nextColor: string,
+    { immediate = true }: { immediate?: boolean } = {},
+  ) => {
+    setShadowColor(nextColor)
+    if (immediate) {
+      if (historyTimeoutRef.current) {
+        window.clearTimeout(historyTimeoutRef.current)
+        historyTimeoutRef.current = null
+      }
+      commitColorToHistory(nextColor)
+      return
+    }
+    scheduleHistoryUpdate(nextColor)
+  }
+
+  const flushPendingColor = useCallback(() => {
+    if (historyTimeoutRef.current) {
+      window.clearTimeout(historyTimeoutRef.current)
+      historyTimeoutRef.current = null
+    }
+    commitColorToHistory(shadowColor)
+  }, [commitColorToHistory, shadowColor])
+
+  useEffect(() => {
+    return () => {
+      if (historyTimeoutRef.current) {
+        window.clearTimeout(historyTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const handleNameChange =
     (id: string) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -300,10 +382,30 @@ function App() {
             <input
               type="color"
               value={shadowColor}
-              onChange={(event) => setShadowColor(event.target.value)}
+              onChange={(event) =>
+                handleShadowColorChange(event.target.value, { immediate: false })
+              }
+              onBlur={flushPendingColor}
               aria-label="影の色を選択"
             />
           </label>
+          {colorHistory.length > 1 ? (
+            <div className="color-history" aria-label="過去に使った色">
+              <span>最近使った色</span>
+              <div className="color-history__list">
+                {colorHistory.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    className={`color-chip ${color === shadowColor ? 'active' : ''}`}
+                    style={{ backgroundColor: color }}
+                    onClick={() => handleShadowColorChange(color)}
+                    aria-label={`色 ${color}`}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           {items.map((item, index) => (
             <fieldset key={item.id} className="item-form">

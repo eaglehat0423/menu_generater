@@ -97,6 +97,34 @@
   cursor: pointer;
 }
 
+.color-history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #6a5a4a;
+}
+
+.color-history__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.color-chip {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.color-chip.active {
+  border-color: #1b1b1b;
+  transform: translateY(-2px);
+}
+
 .item-form {
   border: 1px solid #eadcca;
   border-radius: 16px;
