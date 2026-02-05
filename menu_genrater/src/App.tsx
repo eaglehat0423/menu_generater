@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react'
 import type { ChangeEvent, CSSProperties } from 'react'
-import { toPng } from 'html-to-image'
+import { domToPng } from 'modern-screenshot'
 import './App.css'
 
 const TAX_RATE = 0.1
@@ -58,8 +58,11 @@ const useAutoFitText = (
     const parent = node.parentElement
     if (!parent) return
 
-    const availableHeight = parent.clientHeight
-    if (!availableHeight) return
+    const parentStyle = getComputedStyle(parent)
+    const paddingTop = parseFloat(parentStyle.paddingTop || '0')
+    const paddingBottom = parseFloat(parentStyle.paddingBottom || '0')
+    const availableHeight = parent.clientHeight - (paddingTop + paddingBottom)
+    if (!availableHeight || availableHeight <= 0) return
 
     let low = min
     let high = max
@@ -216,31 +219,59 @@ function App() {
   }, [updateScale])
 
   const handleDownload = async () => {
-    if (!previewRef.current) return
-    const node = previewRef.current
-    const previousTransform = node.style.transform
-    node.style.transform = 'scale(1)'
+    const node = previewRef.current;
+    if (!node) return;
+
+    // 1. 現在のスタイルを保存
+    const originalStyle = node.style.cssText;
 
     try {
-      const dataUrl = await toPng(node, {
-        cacheBust: true,
-        pixelRatio: 2,
-      })
+      // 2. 撮影用のスタイル設定
+      // visibility: hidden は使わず、opacity: 0 か z-index で隠すのがコツです
+      node.style.transition = "none";
+      node.style.transform = "none";
+      node.style.position = "fixed";
+      node.style.top = "0";
+      node.style.left = "0";
+      node.style.width = `${PAGE_WIDTH}px`;
+      node.style.height = `${PAGE_HEIGHT}px`;
+      node.style.zIndex = "9999"; // 最前面へ
+      node.style.backgroundColor = "#ffffff";
+
+      // 文字サイズの再計算を確実に行わせるためのリフロー強制
+      node.getBoundingClientRect();
+
+      // 3. ブラウザが描画を完了するまで僅かに待機
+      await new Promise((r) => setTimeout(r, 100));
+
+      const dataUrl = await domToPng(node, {
+        width: PAGE_WIDTH,
+        height: PAGE_HEIGHT,
+        scale: 2, // 高画質化
+        backgroundColor: "#ffffff",
+        // modern-screenshot 特有のオプション
+        features: {
+          font: true,
+          copyStyles: true,
+        },
+      });
+
       const timestamp = new Date()
         .toISOString()
-        .replace(/[-:T]/g, '')
-        .slice(0, 12)
-      const link = document.createElement('a')
-      link.download = `menu_${timestamp}.png`
-      link.href = dataUrl
-      link.click()
+        .replace(/[-:T]/g, "")
+        .slice(0, 12);
+      const link = document.createElement("a");
+      link.download = `menu_${timestamp}.png`;
+      link.href = dataUrl;
+      link.click();
     } catch (error) {
-      console.error(error)
-      alert('PNGの書き出しに失敗しました。もう一度お試しください。')
+      console.error("Download Error:", error);
+      alert("PNGの書き出しに失敗しました。");
     } finally {
-      node.style.transform = previousTransform
+      // 4. スタイルを元に戻す
+      node.style.cssText = originalStyle;
     }
-  }
+  };
 
   const itemsToRender = computedItems.slice(0, visibleCount)
 
