@@ -161,7 +161,6 @@ function App() {
   const [pageScale, setPageScale] = useState(1)
   const previewRef = useRef<HTMLDivElement>(null)
   const previewStageRef = useRef<HTMLDivElement>(null)
-  const historyTimeoutRef = useRef<number | null>(null)
 
   const computedItems = useMemo<ComputedMenuItem[]>(
     () =>
@@ -181,60 +180,13 @@ function App() {
     window.localStorage.setItem(COLOR_HISTORY_KEY, JSON.stringify(colorHistory))
   }, [colorHistory])
 
-  const commitColorToHistory = useCallback(
-    (nextColor: string) => {
-      setColorHistory((prev) => {
-        const filtered = prev.filter((color) => color !== nextColor)
-        return [nextColor, ...filtered].slice(0, MAX_COLOR_HISTORY)
-      })
-    },
-    [setColorHistory],
-  )
-
-  const scheduleHistoryUpdate = useCallback(
-    (nextColor: string) => {
-      if (historyTimeoutRef.current) {
-        window.clearTimeout(historyTimeoutRef.current)
-      }
-      historyTimeoutRef.current = window.setTimeout(() => {
-        commitColorToHistory(nextColor)
-        historyTimeoutRef.current = null
-      }, 500)
-    },
-    [commitColorToHistory],
-  )
-
-  const handleShadowColorChange = (
-    nextColor: string,
-    { immediate = true }: { immediate?: boolean } = {},
-  ) => {
+  const handleShadowColorChange = (nextColor: string) => {
     setShadowColor(nextColor)
-    if (immediate) {
-      if (historyTimeoutRef.current) {
-        window.clearTimeout(historyTimeoutRef.current)
-        historyTimeoutRef.current = null
-      }
-      commitColorToHistory(nextColor)
-      return
-    }
-    scheduleHistoryUpdate(nextColor)
+    setColorHistory((prev) => {
+      const filtered = prev.filter((color) => color !== nextColor)
+      return [nextColor, ...filtered].slice(0, MAX_COLOR_HISTORY)
+    })
   }
-
-  const flushPendingColor = useCallback(() => {
-    if (historyTimeoutRef.current) {
-      window.clearTimeout(historyTimeoutRef.current)
-      historyTimeoutRef.current = null
-    }
-    commitColorToHistory(shadowColor)
-  }, [commitColorToHistory, shadowColor])
-
-  useEffect(() => {
-    return () => {
-      if (historyTimeoutRef.current) {
-        window.clearTimeout(historyTimeoutRef.current)
-      }
-    }
-  }, [])
 
   const handleNameChange =
     (id: string) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -382,10 +334,7 @@ function App() {
             <input
               type="color"
               value={shadowColor}
-              onChange={(event) =>
-                handleShadowColorChange(event.target.value, { immediate: false })
-              }
-              onBlur={flushPendingColor}
+              onChange={(event) => handleShadowColorChange(event.target.value)}
               aria-label="影の色を選択"
             />
           </label>
