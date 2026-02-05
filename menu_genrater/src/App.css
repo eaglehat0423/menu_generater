@@ -1,0 +1,287 @@
+.app-shell {
+  min-height: 100vh;
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+  background: #f6f2eb;
+  color: #1f1409;
+}
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-family: 'Mushin', 'Hiragino Kaku Gothic Pro', 'Yu Gothic', sans-serif;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  letter-spacing: 0.02em;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #c4681a;
+}
+
+.header-note {
+  max-width: 32rem;
+  margin: 0;
+  line-height: 1.6;
+  color: #5c5144;
+}
+
+.app-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.control-panel {
+  flex: 0 0 330px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: 0 25px 60px rgba(24, 17, 5, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.control-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.control-label {
+  font-weight: 600;
+  color: #46382b;
+}
+
+.segment-control {
+  display: inline-flex;
+  border-radius: 999px;
+  background: #f5eee4;
+  padding: 0.2rem;
+  gap: 0.2rem;
+}
+
+.segment-control button {
+  border: none;
+  background: transparent;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #907151;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.segment-control button.active {
+  background: #2c2c2c;
+  color: #fff;
+}
+
+.color-row input[type='color'] {
+  width: 48px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.item-form {
+  border: 1px solid #eadcca;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.item-form legend {
+  font-weight: 600;
+  color: #534437;
+  padding: 0 0.4rem;
+}
+
+.item-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  color: #5d5144;
+}
+
+.item-form input[type='text'] {
+  border: 1px solid #dacdbb;
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  font-size: 1rem;
+  font-family: inherit;
+  background: #fff;
+}
+
+.item-form input:focus {
+  outline: 2px solid #927153;
+  border-color: transparent;
+}
+
+.price-input {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.price-input .suffix {
+  font-weight: 600;
+}
+
+.preview-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 0;
+}
+
+.preview-stage {
+  background: repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.5) 0,
+      rgba(255, 255, 255, 0.5) 6px,
+      rgba(230, 225, 215, 0.7) 6px,
+      rgba(230, 225, 215, 0.7) 12px
+    ),
+    #d9d2c8;
+  border-radius: 24px;
+  padding: 1.5rem;
+  box-shadow: inset 0 15px 35px rgba(15, 10, 3, 0.12);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 0;
+  height: clamp(520px, 80vh, 960px);
+}
+
+.menu-page {
+  width: 794px;
+  height: 1123px;
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #f1e7da;
+  box-shadow: 0 18px 60px rgba(15, 10, 3, 0.1);
+  padding: 3rem clamp(2rem, 4vw, 4rem);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(2rem, 4vw, 4rem);
+  font-family: 'Mushin', 'Hiragino Kaku Gothic Pro', 'Yu Gothic', sans-serif;
+  margin: 0 auto;
+  will-change: transform;
+}
+
+.menu-page--single {
+  gap: 0;
+}
+
+.menu-item {
+  flex: 1;
+  display: flex;
+  height: 100%;
+  align-items: center;
+  gap: clamp(1.5rem, 2vw, 2.5rem);
+  color: #050505;
+  --shadow-color: #57e8ff;
+}
+
+.menu-item__name-box {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-item__name {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  white-space: nowrap;
+  letter-spacing: 0.12em;
+  line-height: 1.15;
+  text-shadow: 8px 8px 0 var(--shadow-color);
+  color: #050505;
+}
+
+.menu-item__price {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  display: flex;
+  gap: 1.25rem;
+  font-size: clamp(2rem, 3vw, 3.1rem);
+  letter-spacing: 0.12em;
+  line-height: 1.15;
+  text-shadow: 6px 6px 0 var(--shadow-color);
+}
+
+.menu-item__price-tax {
+  font-size: 0.5em;
+  letter-spacing: 0.16em;
+}
+
+.download-button {
+  align-self: flex-end;
+  border: none;
+  border-radius: 999px;
+  background: #171717;
+  color: #fff;
+  padding: 0.85rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 12px 30px rgba(23, 23, 23, 0.25);
+}
+
+.download-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 40px rgba(23, 23, 23, 0.35);
+}
+
+@media (max-width: 1200px) {
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .control-panel {
+    width: 100%;
+  }
+
+  .preview-panel {
+    width: 100%;
+  }
+
+  .menu-page {
+    transform-origin: top left;
+  }
+}
+
+@media (max-width: 640px) {
+  .menu-page {
+    width: min(100%, 520px);
+    height: calc(min(100%, 520px) * 1.414);
+  }
+
+  .segment-control {
+    width: 100%;
+  }
+}
