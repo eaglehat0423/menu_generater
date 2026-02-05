@@ -234,7 +234,7 @@
   font-size: clamp(2rem, 3vw, 3.1rem);
   letter-spacing: 0.12em;
   line-height: 1.15;
-  text-shadow: 6px 6px 0 var(--shadow-color);
+  text-shadow: 2px 2px 0 var(--shadow-color);
   padding: clamp(1.5rem, 3vw, 2.5rem) 0;
   box-sizing: border-box;
 }

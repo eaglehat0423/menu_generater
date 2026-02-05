@@ -26,18 +26,13 @@ type ComputedMenuItem = MenuItem & {
 }
 
 const initialItems: MenuItem[] = [
-  { id: 'item-1', name: '海鮮ねばねば', price: '980' },
-  { id: 'item-2', name: '海鮮サラダ', price: '888' },
+  { id: 'item-1', name: 'メニュー１', price: '980' },
+  { id: 'item-2', name: 'メニュー２', price: '888' },
 ]
-
-const yenFormatter = new Intl.NumberFormat('ja-JP', {
-  maximumFractionDigits: 0,
-})
 
 const sanitizeDigits = (value: string) => value.replace(/[^\d]/g, '')
 
-const formatPrice = (value: number) =>
-  value > 0 ? `${yenFormatter.format(value)}` : ''
+const formatPrice = (value: number) => (value > 0 ? String(value) : '')
 
 const getTaxIncluded = (value: number) =>
   value > 0 ? Math.round(value * (1 + TAX_RATE)) : 0
