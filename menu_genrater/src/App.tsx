@@ -242,13 +242,8 @@ function App() {
       const dataUrl = await domToPng(node, {
         width: PAGE_WIDTH,
         height: PAGE_HEIGHT,
-        scale: 2, // 高画質化
+        scale: 2,
         backgroundColor: "#ffffff",
-        // modern-screenshot 特有のオプション
-        features: {
-          font: true,
-          copyStyles: true,
-        },
       });
 
       const timestamp = new Date()
